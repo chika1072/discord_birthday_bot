@@ -152,15 +152,11 @@ function saveBirthday(username, birthday) {
 
 // スケジュールタスク (Cron)
 
-// 毎分実行（テスト用）
+// 毎月1日の0:00に実行
 cron.schedule('* * * * *', async () => {
   console.log('🔄 テスト実行：誕生日カレンダー送信');
 
   const birthdayList = getMonthlyBirthdayList();
-  if (birthdayList.length === 0) {
-    console.log('👻 今月は誕生日が登録されていません');
-    return;
-  }
 
   // 誕生日の日付順に並び替え
   birthdayList.sort((a, b) => {
@@ -174,10 +170,13 @@ cron.schedule('* * * * *', async () => {
   const embed = {
     title: `🎂 ${month}月の誕生日カレンダー`,
     color: 0xc993ff,
-    fields: birthdayList.map(user => ({
-      name: `▷ ${user.username}`,
-      value: ` ${user.birthday}`,
-    }))
+    fields:
+      birthdayList.length === 0
+        ? [{ name: '👻 今月の誕生日', value: '登録されていません' }]
+        : birthdayList.map(user => ({
+            name: `▷ ${user.username}`,
+            value: ` ${user.birthday}`,
+          }))
   };
 
   try {
