@@ -153,7 +153,7 @@ function saveBirthday(username, birthday) {
 // スケジュールタスク (Cron)
 
 // 毎月1日の0:00に実行
-cron.schedule('* * * * *', async () => {
+cron.schedule('0 0 1 * *', async () => {
   console.log('🔄 テスト実行：誕生日カレンダー送信');
 
   const birthdayList = getMonthlyBirthdayList();
