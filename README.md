@@ -12,6 +12,6 @@ Discord Birthday Bot は Discord で使える、誕生日を記録して教え�
 - 毎月1日の0:00に、その月に誕生日を迎えるユーザーのリストを送信
 
 ### コマンド一覧
-- / register: ユーザーが誕生日を登録する
-- / birthday_list: 登録された誕生日の一覧を表示する
-- / next_birthday: 次の誕生日のユーザーを表示する
+- /register : ユーザーが誕生日を登録する
+- /birthday_list : 登録された誕生日の一覧を表示する
+- /next_birthday : 次の誕生日のユーザーを表示する
