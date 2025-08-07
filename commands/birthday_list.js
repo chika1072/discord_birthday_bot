@@ -6,7 +6,7 @@ const DATA_PATH = path.join(process.cwd(), 'birthdays.json');
 
 export default {
   data: new SlashCommandBuilder()
-    .setName('list_birthdays')
+    .setName('birthday_list')
     .setDescription('登録されている全ての誕生日を表示します'),
 
   async execute(interaction) {
@@ -21,9 +21,9 @@ export default {
 
       if (birthdayData.length === 0) {
         embed = {
-          title: `📅 登録された誕生日一覧`,
+          title: `🪐 登録された誕生日一覧`,
           description: '👻 誕生日がまだ登録されていません',
-          color: 0xc993ff
+          color: 0x9494ff
         };
       } else {
         // 日付順に並べる
@@ -34,11 +34,11 @@ export default {
         });
 
         embed = {
-          title: `📅 登録された誕生日一覧`,
-          color: 0xc993ff,
+          title: `🪐 登録された誕生日一覧`,
+          color: 0x9494ff,
           fields: birthdayData.map(user => ({
             name: `▷ ${user.username}`,
-            value: `🎂 ${user.birthday}`
+            value: `${user.birthday}`
           }))
         };
       }

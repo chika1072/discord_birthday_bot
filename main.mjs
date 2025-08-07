@@ -8,6 +8,7 @@ import cron from 'node-cron';
 import fs from 'fs';
 import path from 'path';
 import { pathToFileURL, fileURLToPath } from 'url';
+import { MessageFlags } from 'discord-api-types/v10';
 
 // ESモジュールのための__dirname, __filenameの定義
 const __filename = fileURLToPath(import.meta.url);
@@ -56,7 +57,10 @@ client.on('interactionCreate', async interaction => {
     await command.execute(interaction);
   } catch (error) {
     console.error('❌ コマンド実行中にエラー:', error);
-    await interaction.reply({ content: 'エラーが発生しました 💥', ephemeral: true });
+    await interaction.reply({
+      content: 'エラーが発生しました 💥',
+      flags: MessageFlags.Ephemeral
+    });
   }
 });
 

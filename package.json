@@ -2,6 +2,7 @@
   "name": "discord_birthday_bot",
   "version": "1.0.0",
   "description": "It tracks the birthdays of Discord server members.",
+  "type": "module",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
