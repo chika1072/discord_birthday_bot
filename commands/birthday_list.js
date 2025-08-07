@@ -23,7 +23,7 @@ export default {
         embed = {
           title: `🪐 登録された誕生日一覧`,
           description: '👻 誕生日がまだ登録されていません',
-          color: 0x9494ff
+          color: 0x94c9ff
         };
       } else {
         // 日付順に並べる
@@ -35,7 +35,7 @@ export default {
 
         embed = {
           title: `🪐 登録された誕生日一覧`,
-          color: 0x9494ff,
+          color: 0x94c9ff,
           fields: birthdayData.map(user => ({
             name: `▷ ${user.username}`,
             value: `${user.birthday}`

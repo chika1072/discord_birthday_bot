@@ -42,13 +42,13 @@ export default {
         embed = {
           title: `🔮 次の誕生日`,
           description: '👻 誕生日がまだ登録されていません',
-          color: 0x9494ff
+          color: 0xffbff4
         };
       } else {
         const next = getNextBirthday(birthdayData);
         embed = {
           title: `🔮 次の誕生日`,
-          color: 0x9494ff,
+          color: 0xffbff4,
           fields: [
             {
               name: `▷ ${next.username}`,
