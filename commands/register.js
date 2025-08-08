@@ -1,47 +1,73 @@
-import { SlashCommandBuilder } from '@discordjs/builders';
-import fs from 'fs';
-import path from 'path';
-import { saveBirthday } from '../firestoreUtils.js'; // Firestore保存関数をインポート
+import {
+  SlashCommandBuilder,
+  ModalBuilder,
+  TextInputBuilder,
+  TextInputStyle,
+  ActionRowBuilder
+} from 'discord.js';
 
-const DATA_PATH = path.join(process.cwd(), 'birthdays.json');
+import { getFirestore, Timestamp } from 'firebase-admin/firestore';
+import { initializeApp, applicationDefault } from 'firebase-admin/app';
+
+// Firestore 初期化
+initializeApp({
+  credential: applicationDefault()
+});
+
+const db = getFirestore();
 
 export default {
   data: new SlashCommandBuilder()
     .setName('register')
-    .setDescription('誕生日を登録します')
-    .addStringOption(option =>
-      option.setName('username')
-        .setDescription('カレンダーに表示するユーザー名を入力してください')
-        .setRequired(true))
-    .addStringOption(option =>
-      option.setName('birthday')
-        .setDescription('MM/DD の形式で誕生日を入力してください (例. 01/01)')
-        .setRequired(true)),
+    .setDescription('誕生日を登録します'),
 
   async execute(interaction) {
-    const username = interaction.options.getString('username');
-    const birthday = interaction.options.getString('birthday');
+    const modal = new ModalBuilder()
+      .setCustomId('registerBirthday')
+      .setTitle('🎂 誕生日登録')
+      .addComponents(
+        new ActionRowBuilder().addComponents(
+          new TextInputBuilder()
+            .setCustomId('username')
+            .setLabel('表示するユーザー名')
+            .setStyle(TextInputStyle.Short)
+            .setPlaceholder('例: せん')
+            .setRequired(true)
+        ),
+        new ActionRowBuilder().addComponents(
+          new TextInputBuilder()
+            .setCustomId('birthday')
+            .setLabel('誕生日 (MM/DD形式)')
+            .setStyle(TextInputStyle.Short)
+            .setPlaceholder('例: 01/01')
+            .setRequired(true)
+        )
+      );
+
+    await interaction.showModal(modal);
+  },
+
+  async modalSubmit(interaction) {
+    if (interaction.customId !== 'registerBirthday') return;
+
+    const username = interaction.fields.getTextInputValue('username');
+    const birthday = interaction.fields.getTextInputValue('birthday');
 
     try {
-      // JSONファイルへの保存処理
-      let data = [];
-      if (fs.existsSync(DATA_PATH)) {
-        const raw = fs.readFileSync(DATA_PATH, 'utf8');
-        data = raw.trim() === '' ? [] : JSON.parse(raw);
-      }
-
-      data.push({ username, birthday });
-      fs.writeFileSync(DATA_PATH, JSON.stringify(data, null, 2));
-
-      // Firestoreへの保存処理
-      await getAllBirthdays(username, birthday);
+      // Firestore に保存
+      const docRef = db.collection('birthdays').doc(username);
+      await docRef.set({
+        username,
+        birthday,
+        registeredAt: Timestamp.now()
+      });
 
       await interaction.reply({
         content: `${username}さんの誕生日 (${birthday}) を登録しました！`,
         ephemeral: true
       });
     } catch (error) {
-      console.error('❌ 誕生日保存エラー:', error);
+      console.error('❌ Firestore保存エラー:', error);
       await interaction.reply({
         content: '誕生日の保存中にエラーが発生しました',
         ephemeral: true

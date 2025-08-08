@@ -1,5 +1,5 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
-import { getAllBirthdays } from '../firestoreUtils.js';
+import { getAllBirthdays } from '../firestore_utils.js';
 
 export default {
   data: new SlashCommandBuilder()

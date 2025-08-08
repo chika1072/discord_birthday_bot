@@ -8,7 +8,7 @@ import path from 'path';
 import fs from 'fs';
 import { pathToFileURL, fileURLToPath } from 'url';
 import { MessageFlags } from 'discord-api-types/v10';
-import { getAllBirthdays } from './firestoreUtils.js'; // Firestore対応
+import { getAllBirthdays } from './firestore_utils.js'; // Firestore対応
 
 // ESモジュールのための__dirname, __filenameの定義
 const __filename = fileURLToPath(import.meta.url);

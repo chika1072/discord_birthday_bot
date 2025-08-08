@@ -1,5 +1,5 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
-import { getAllBirthdays } from '../firestoreUtils.js';
+import { getAllBirthdays } from '../firestore_utils.js';
 
 function getNextBirthday(birthdays) {
   const today = new Date();
