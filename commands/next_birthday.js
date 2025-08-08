@@ -1,8 +1,5 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
-import fs from 'fs';
-import path from 'path';
-
-const DATA_PATH = path.join(process.cwd(), 'birthdays.json');
+import { getAllBirthdays } from '../firestoreUtils.js';
 
 function getNextBirthday(birthdays) {
   const today = new Date();
@@ -30,11 +27,7 @@ export default {
 
   async execute(interaction) {
     try {
-      let birthdayData = [];
-      if (fs.existsSync(DATA_PATH)) {
-        const raw = fs.readFileSync(DATA_PATH, 'utf8');
-        birthdayData = raw.trim() === '' ? [] : JSON.parse(raw);
-      }
+      const birthdayData = await getAllBirthdays();
 
       let embed;
 

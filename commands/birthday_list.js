@@ -1,8 +1,5 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
-import fs from 'fs';
-import path from 'path';
-
-const DATA_PATH = path.join(process.cwd(), 'birthdays.json');
+import { getAllBirthdays } from '../firestoreUtils.js';
 
 export default {
   data: new SlashCommandBuilder()
@@ -11,11 +8,7 @@ export default {
 
   async execute(interaction) {
     try {
-      let birthdayData = [];
-      if (fs.existsSync(DATA_PATH)) {
-        const raw = fs.readFileSync(DATA_PATH, 'utf8');
-        birthdayData = raw.trim() === '' ? [] : JSON.parse(raw);
-      }
+      const birthdayData = await getAllBirthdays();
 
       let embed;
 
@@ -26,7 +19,6 @@ export default {
           color: 0x94c9ff
         };
       } else {
-        // 日付順に並べる
         birthdayData.sort((a, b) => {
           const [aMonth, aDay] = a.birthday.split('/').map(n => parseInt(n, 10));
           const [bMonth, bDay] = b.birthday.split('/').map(n => parseInt(n, 10));

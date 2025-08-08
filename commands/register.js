@@ -1,6 +1,7 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
 import fs from 'fs';
 import path from 'path';
+import { saveBirthday } from '../firestoreUtils.js'; // Firestore保存関数をインポート
 
 const DATA_PATH = path.join(process.cwd(), 'birthdays.json');
 
@@ -22,16 +23,18 @@ export default {
     const birthday = interaction.options.getString('birthday');
 
     try {
-      // 既存データの読み込み（なければ空配列）
+      // JSONファイルへの保存処理
       let data = [];
       if (fs.existsSync(DATA_PATH)) {
         const raw = fs.readFileSync(DATA_PATH, 'utf8');
         data = raw.trim() === '' ? [] : JSON.parse(raw);
       }
 
-      // 新しい誕生日データの追加
       data.push({ username, birthday });
       fs.writeFileSync(DATA_PATH, JSON.stringify(data, null, 2));
+
+      // Firestoreへの保存処理
+      await getAllBirthdays(username, birthday);
 
       await interaction.reply({
         content: `${username}さんの誕生日 (${birthday}) を登録しました！`,

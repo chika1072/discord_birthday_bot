@@ -1,14 +1,14 @@
 // main.mjs - Discord Birthday Bot メインプログラム
 
-// 必要なライブラリを読み込み
 import { Client, GatewayIntentBits, Collection } from 'discord.js';
 import dotenv from 'dotenv';
 import express from 'express';
 import cron from 'node-cron';
-import fs from 'fs';
 import path from 'path';
+import fs from 'fs';
 import { pathToFileURL, fileURLToPath } from 'url';
 import { MessageFlags } from 'discord-api-types/v10';
+import { getAllBirthdays } from './firestoreUtils.js'; // Firestore対応
 
 // ESモジュールのための__dirname, __filenameの定義
 const __filename = fileURLToPath(import.meta.url);
@@ -89,12 +89,10 @@ await client.login(process.env.DISCORD_TOKEN)
     process.exit(1);
   });
 
-// Render用
-
+// Render用 Webサーバー
 const app = express();
 const port = process.env.PORT || 3000;
 
-// ヘルスチェック用エンドポイント
 app.get('/', (req, res) => {
   res.json({
     status: 'Bot is running! 🤖',
@@ -103,64 +101,15 @@ app.get('/', (req, res) => {
   });
 });
 
-// サーバー起動
 app.listen(port, () => {
   console.log(`🌐 Web サーバーがポート ${port} で起動しました`);
 });
 
-// 誕生日データ処理
-
-const DATA_PATH = path.join(__dirname, 'birthdays.json');
-
-/**
- * 今月の誕生日のリストを取得する
- * @returns {Array<Object>} 今月が誕生日のユーザーのリスト
- */
-function getMonthlyBirthdayList() {
-  if (!fs.existsSync(DATA_PATH)) {
-    console.log('birthdays.jsonファイルが見つかりません。');
-    return [];
-  }
-
-  const raw = fs.readFileSync(DATA_PATH, 'utf8');
-  const data = raw.trim() === '' ? [] : JSON.parse(raw);
-
-  const currentMonth = new Date().getMonth() + 1;
-  return data.filter(user => {
-    const userMonth = parseInt(user.birthday.split('/')[0], 10);
-    return userMonth === currentMonth;
-  });
-}
-
-/**
- * 誕生日の保存
- * @param {string} username ユーザー名
- * @param {string} birthday 誕生日 (MM/DD形式)
- * @returns {Promise<void>}
- */
-function saveBirthday(username, birthday) {
-  return new Promise((resolve, reject) => {
-    fs.readFile(DATA_PATH, (err, data) => {
-      if (err && err.code !== 'ENOENT') return reject(err);
-
-      const birthdayData = data && data.length > 0 ? JSON.parse(data) : [];
-      birthdayData.push({ username, birthday });
-
-      fs.writeFile(DATA_PATH, JSON.stringify(birthdayData, null, 2), (err) => {
-        if (err) return reject(err);
-        resolve();
-      });
-    });
-  });
-}
-
-// スケジュールタスク (Cron)
-
-// 毎月1日の0:00に実行
+// スケジュールタスク (Cron) - 毎月1日の0:00に誕生日カレンダー送信
 cron.schedule('0 0 1 * *', async () => {
-  console.log('🔄 テスト実行：誕生日カレンダー送信');
+  console.log('🔄 誕生日カレンダー送信処理を実行中...');
 
-  const birthdayList = getMonthlyBirthdayList();
+  const birthdayList = await getAllBirthdays();
 
   // 誕生日の日付順に並び替え
   birthdayList.sort((a, b) => {
