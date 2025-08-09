@@ -1,15 +1,8 @@
-import {
-  SlashCommandBuilder,
-  ModalBuilder,
-  TextInputBuilder,
-  TextInputStyle,
-  ActionRowBuilder
-} from 'discord.js';
-
+import { SlashCommandBuilder } from 'discord.js';
 import { getFirestore, Timestamp } from 'firebase-admin/firestore';
 import { initializeApp, applicationDefault } from 'firebase-admin/app';
 
-// Firestore 初期化
+// Firestore 初期化（必要なら一度だけ）
 initializeApp({
   credential: applicationDefault()
 });
@@ -19,39 +12,30 @@ const db = getFirestore();
 export default {
   data: new SlashCommandBuilder()
     .setName('register')
-    .setDescription('誕生日を登録します'),
+    .setDescription('誕生日を登録します')
+    .addStringOption(option =>
+      option.setName('username')
+        .setDescription('カレンダーに表示するユーザー名を入力してください')
+        .setRequired(true)
+    )
+    .addStringOption(option =>
+      option.setName('birthday')
+        .setDescription('MM/DD の形式で誕生日を入力してください (例: 01/01)')
+        .setRequired(true)
+    ),
 
   async execute(interaction) {
-    const modal = new ModalBuilder()
-      .setCustomId('registerBirthday')
-      .setTitle('🎂 誕生日登録')
-      .addComponents(
-        new ActionRowBuilder().addComponents(
-          new TextInputBuilder()
-            .setCustomId('username')
-            .setLabel('表示するユーザー名')
-            .setStyle(TextInputStyle.Short)
-            .setPlaceholder('例: せん')
-            .setRequired(true)
-        ),
-        new ActionRowBuilder().addComponents(
-          new TextInputBuilder()
-            .setCustomId('birthday')
-            .setLabel('誕生日 (MM/DD形式)')
-            .setStyle(TextInputStyle.Short)
-            .setPlaceholder('例: 01/01')
-            .setRequired(true)
-        )
-      );
+    const username = interaction.options.getString('username');
+    const birthday = interaction.options.getString('birthday');
 
-    await interaction.showModal(modal);
-  },
-
-  async modalSubmit(interaction) {
-    if (interaction.customId !== 'registerBirthday') return;
-
-    const username = interaction.fields.getTextInputValue('username');
-    const birthday = interaction.fields.getTextInputValue('birthday');
+    // 誕生日形式のバリデーション
+    const isValidBirthday = /^\d{2}\/\d{2}$/.test(birthday);
+    if (!isValidBirthday) {
+      return await interaction.reply({
+        content: '❌ 誕生日の形式が正しくありません。\nMM/DD の形式で入力してください（例: 08/09）',
+        ephemeral: true
+      });
+    }
 
     try {
       // Firestore に保存
