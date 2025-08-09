@@ -11,18 +11,18 @@ const db = getFirestore();
 
 export default {
   data: new SlashCommandBuilder()
-    .setName('register')
-    .setDescription('誕生日を登録します')
-    .addStringOption(option =>
-      option.setName('username')
-        .setDescription('カレンダーに表示するユーザー名を入力してください')
-        .setRequired(true)
-    )
-    .addStringOption(option =>
-      option.setName('birthday')
-        .setDescription('MM/DD の形式で誕生日を入力してください (例: 01/01)')
-        .setRequired(true)
-    ),
+  .setName('register')
+  .setDescription('誕生日を登録します')
+  .addStringOption(option =>
+    option.setName('username')
+      .setDescription('カレンダーに表示するユーザー名を入力してください')
+      .setRequired(true)
+  )
+  .addStringOption(option =>
+    option.setName('birthday')
+      .setDescription('MM/DD の形式で誕生日を入力してください (例: 01/01)')
+      .setRequired(true)
+  ),
 
   async execute(interaction) {
     const username = interaction.options.getString('username');
@@ -32,7 +32,7 @@ export default {
     const isValidBirthday = /^\d{2}\/\d{2}$/.test(birthday);
     if (!isValidBirthday) {
       return await interaction.reply({
-        content: '❌ 誕生日の形式が正しくありません。\nMM/DD の形式で入力してください（例: 08/09）',
+        content: '❌ \nMM/DD の形式で入力してください（例: 01/01）',
         ephemeral: true
       });
     }
